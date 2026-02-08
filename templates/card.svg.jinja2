@@ -25,10 +25,10 @@
     <rect width="{{ style.item_width }}" height="{{ style.item_height - 10 }}" fill="{{ theme.card_background }}" rx="6" stroke="{{ theme.border }}" stroke-width="1"/>
 
     <!-- Icon -->
-    {% set icon_url = get_icon_url(tech.icon) %}
+    {% set icon_data = get_icon_data_uri(tech.icon) %}
     <circle cx="{{ style.item_width // 2 }}" cy="35" r="20" fill="{{ tech.color }}20"/>
-    {% if icon_url %}
-    <image x="{{ style.item_width // 2 - 14 }}" y="21" width="28" height="28" href="{{ icon_url }}"/>
+    {% if icon_data %}
+    <image x="{{ style.item_width // 2 - 14 }}" y="21" width="28" height="28" href="{{ icon_data }}"/>
     {% else %}
     <circle cx="{{ style.item_width // 2 }}" cy="35" r="16" fill="{{ tech.color }}"/>
     <text x="{{ style.item_width // 2 }}" y="40" text-anchor="middle" fill="white" font-size="12" font-weight="bold">{{ tech.name[0] }}</text>

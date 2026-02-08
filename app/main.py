@@ -10,6 +10,7 @@ from .github_client import GitHubClient
 from .analyzers import ALL_ANALYZERS
 from .analyzers.base import Technology
 from .svg.generator import SVGGenerator
+from .svg.icons import fetch_icons
 from .cache import cache, user_cache
 
 app = FastAPI(
@@ -149,6 +150,8 @@ async def get_demo_techstack(
     columns: Optional[int] = Query(None, ge=1, le=10, description="Number of columns (1-10, auto if not set)"),
 ):
     """Demo endpoint with mock data for testing."""
+    await fetch_icons([t.icon for t in DEMO_TECHNOLOGIES])
+
     svg = svg_generator.generate(
         technologies=DEMO_TECHNOLOGIES,
         username="demo-user",
@@ -175,6 +178,7 @@ async def get_user_techstack(
 ):
     """Generate SVG for user's complete tech stack."""
     technologies = await analyze_user(username)
+    await fetch_icons([t.icon for t in technologies])
 
     svg = svg_generator.generate(
         technologies=technologies,
@@ -206,6 +210,7 @@ async def get_user_frameworks(
 
     # Filter to frameworks only
     frameworks = [t for t in technologies if t.category == "framework"]
+    await fetch_icons([t.icon for t in frameworks])
 
     svg = svg_generator.generate(
         technologies=frameworks,
@@ -234,6 +239,7 @@ async def get_repo_tech(
 ):
     """Generate SVG for a single repository's tech stack."""
     technologies = await analyze_repo(owner, repo, github)
+    await fetch_icons([t.icon for t in technologies])
 
     svg = svg_generator.generate(
         technologies=technologies,

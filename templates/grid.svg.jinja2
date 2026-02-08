@@ -19,10 +19,10 @@
   {% set y = style.padding + 30 + row * (style.item_height + style.gap) %}
 
   <g transform="translate({{ x }}, {{ y }})">
-    {% set icon_url = get_icon_url(tech.icon) %}
+    {% set icon_data = get_icon_data_uri(tech.icon) %}
     <!-- Icon -->
-    {% if icon_url %}
-    <image x="{{ style.item_width // 2 - 16 }}" y="6" width="32" height="32" href="{{ icon_url }}"/>
+    {% if icon_data %}
+    <image x="{{ style.item_width // 2 - 16 }}" y="6" width="32" height="32" href="{{ icon_data }}"/>
     {% else %}
     <circle cx="{{ style.item_width // 2 }}" cy="22" r="18" fill="{{ tech.color }}"/>
     <text x="{{ style.item_width // 2 }}" y="27" text-anchor="middle" fill="white" font-size="14" font-weight="bold">{{ tech.name[0] }}</text>

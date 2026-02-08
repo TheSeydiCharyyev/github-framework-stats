@@ -4,7 +4,7 @@ from jinja2 import Environment, FileSystemLoader
 from ..analyzers.base import Technology
 from .themes import Theme, get_theme
 from .styles import Style, STYLES
-from .icons import get_icon_url
+from .icons import get_icon_url, get_icon_data_uri
 
 
 class SVGGenerator:
@@ -19,6 +19,7 @@ class SVGGenerator:
         )
         self.env.globals["math"] = math
         self.env.globals["get_icon_url"] = get_icon_url
+        self.env.globals["get_icon_data_uri"] = get_icon_data_uri
 
     def generate(
         self,

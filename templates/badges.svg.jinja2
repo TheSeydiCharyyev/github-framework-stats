@@ -21,10 +21,10 @@
   {% set badge_width = (tech.name|length * 7) + 20 %}
 
   <g transform="translate({{ style.padding + (loop.index0 % style.columns) * (style.item_width + style.gap) }}, {{ badge_y + (loop.index0 // style.columns) * (style.item_height + style.gap) }})">
-    {% set icon_url = get_icon_url(tech.icon) %}
+    {% set icon_data = get_icon_data_uri(tech.icon) %}
     <rect width="{{ style.item_width }}" height="{{ style.item_height }}" fill="{{ tech.color }}" rx="4"/>
-    {% if icon_url %}
-    <image x="4" y="{{ (style.item_height - 16) // 2 }}" width="16" height="16" href="{{ icon_url }}"/>
+    {% if icon_data %}
+    <image x="4" y="{{ (style.item_height - 16) // 2 }}" width="16" height="16" href="{{ icon_data }}"/>
     <text x="{{ 24 + (style.item_width - 24) // 2 }}" y="{{ style.item_height // 2 + 4 }}" text-anchor="middle" class="badge-text">{{ tech.name[:10] }}</text>
     {% else %}
     <text x="{{ style.item_width // 2 }}" y="{{ style.item_height // 2 + 4 }}" text-anchor="middle" class="badge-text">{{ tech.name[:10] }}</text>

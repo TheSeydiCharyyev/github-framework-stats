@@ -54,9 +54,9 @@
   {% set legend_y = 60 %}
   {% for tech in technologies[:10] %}
   <g transform="translate({{ legend_x }}, {{ legend_y + loop.index0 * 22 }})">
-    {% set icon_url = get_icon_url(tech.icon) %}
-    {% if icon_url %}
-    <image x="0" y="0" width="14" height="14" href="{{ icon_url }}"/>
+    {% set icon_data = get_icon_data_uri(tech.icon) %}
+    {% if icon_data %}
+    <image x="0" y="0" width="14" height="14" href="{{ icon_data }}"/>
     {% else %}
     <rect width="12" height="12" fill="{{ tech.color }}" rx="2"/>
     {% endif %}

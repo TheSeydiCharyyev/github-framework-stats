@@ -151,6 +151,9 @@ PLAIN_VARIANTS = {
 
 DEVICON_CDN = "https://cdn.jsdelivr.net/gh/devicons/devicon/icons"
 
+# In-memory cache for fetched icon data URIs
+_icon_cache: dict[str, str] = {}
+
 
 def get_icon_url(icon_name: str) -> str:
     """Get devicon CDN URL for a technology icon."""
@@ -161,3 +164,54 @@ def get_icon_url(icon_name: str) -> str:
 
     variant = "plain" if devicon_name in PLAIN_VARIANTS else "original"
     return f"{DEVICON_CDN}/{devicon_name}/{devicon_name}-{variant}.svg"
+
+
+def get_icon_data_uri(icon_name: str) -> str:
+    """Get cached base64 data URI for an icon. Returns empty string if not cached."""
+    return _icon_cache.get(icon_name.lower(), "")
+
+
+async def fetch_icons(icon_names: list[str]) -> dict[str, str]:
+    """Fetch icons from CDN and return as base64 data URIs.
+
+    Results are cached in memory for subsequent requests.
+    """
+    import httpx
+    import base64
+    import asyncio
+
+    to_fetch = []
+    result = {}
+
+    for name in icon_names:
+        name_lower = name.lower()
+        if name_lower in _icon_cache:
+            result[name_lower] = _icon_cache[name_lower]
+        else:
+            url = get_icon_url(name_lower)
+            if url:
+                to_fetch.append((name_lower, url))
+
+    if not to_fetch:
+        return result
+
+    async with httpx.AsyncClient(timeout=5.0) as client:
+        async def _fetch_one(name: str, url: str) -> tuple[str, str]:
+            try:
+                resp = await client.get(url)
+                if resp.status_code == 200:
+                    b64 = base64.b64encode(resp.content).decode("ascii")
+                    data_uri = f"data:image/svg+xml;base64,{b64}"
+                    return name, data_uri
+            except Exception:
+                pass
+            return name, ""
+
+        tasks = [_fetch_one(n, u) for n, u in to_fetch]
+        fetched = await asyncio.gather(*tasks)
+
+        for name, data_uri in fetched:
+            _icon_cache[name] = data_uri
+            result[name] = data_uri
+
+    return result
