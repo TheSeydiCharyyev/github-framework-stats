@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="{{ width }}" height="{{ height }}" viewBox="0 0 {{ width }} {{ height }}">
+  <defs>
+    <style>
+      .title { font: 600 16px system-ui, -apple-system, sans-serif; fill: {{ theme.text_primary }}; }
+      .subtitle { font: 400 12px system-ui, -apple-system, sans-serif; fill: {{ theme.text_secondary }}; }
+      .tech-name { font: 500 11px system-ui, -apple-system, sans-serif; fill: {{ theme.text_primary }}; }
+      .tech-count { font: 400 10px system-ui, -apple-system, sans-serif; fill: {{ theme.text_secondary }}; }
+    </style>
+  </defs>
+
+  <rect width="100%" height="100%" fill="{{ theme.background }}" rx="8"/>
+
+  <!-- Header -->
+  <text x="{{ style.padding }}" y="{{ style.padding + 16 }}" class="title">@{{ username }}'s Tech Stack</text>
+  <text x="{{ style.padding }}" y="{{ style.padding + 32 }}" class="subtitle">{{ technologies|length }} technologies detected</text>
+
+  <!-- Technology cards -->
+  {% for tech in technologies %}
+  {% set col = loop.index0 % style.columns %}
+  {% set row = loop.index0 // style.columns %}
+  {% set x = style.padding + col * (style.item_width + style.gap) %}
+  {% set y = style.padding + 45 + row * (style.item_height + style.gap) %}
+
+  <g transform="translate({{ x }}, {{ y }})">
+    <rect width="{{ style.item_width }}" height="{{ style.item_height - 10 }}" fill="{{ theme.card_background }}" rx="6" stroke="{{ theme.border }}" stroke-width="1"/>
+
+    <!-- Icon -->
+    {% set icon_url = get_icon_url(tech.icon) %}
+    <circle cx="{{ style.item_width // 2 }}" cy="35" r="20" fill="{{ tech.color }}20"/>
+    {% if icon_url %}
+    <image x="{{ style.item_width // 2 - 14 }}" y="21" width="28" height="28" href="{{ icon_url }}"/>
+    {% else %}
+    <circle cx="{{ style.item_width // 2 }}" cy="35" r="16" fill="{{ tech.color }}"/>
+    <text x="{{ style.item_width // 2 }}" y="40" text-anchor="middle" fill="white" font-size="12" font-weight="bold">{{ tech.name[0] }}</text>
+    {% endif %}
+
+    <!-- Name -->
+    <text x="{{ style.item_width // 2 }}" y="72" text-anchor="middle" class="tech-name">{{ tech.name[:12] }}{% if tech.name|length > 12 %}...{% endif %}</text>
+
+    <!-- Count -->
+    <text x="{{ style.item_width // 2 }}" y="88" text-anchor="middle" class="tech-count">{{ tech.count }} repo{% if tech.count != 1 %}s{% endif %}</text>
+  </g>
+  {% endfor %}
+</svg>

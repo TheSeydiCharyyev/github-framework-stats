@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="{{ width }}" height="{{ height }}" viewBox="0 0 {{ width }} {{ height }}">
+  <defs>
+    <style>
+      .title { font: 600 14px system-ui, -apple-system, sans-serif; fill: {{ theme.text_primary }}; }
+      .icon-label { font: 500 9px system-ui, -apple-system, sans-serif; fill: {{ theme.text_primary }}; }
+    </style>
+  </defs>
+
+  <rect width="100%" height="100%" fill="{{ theme.background }}" rx="8"/>
+
+  <!-- Header -->
+  <text x="{{ style.padding }}" y="{{ style.padding + 12 }}" class="title">@{{ username }}'s Stack</text>
+
+  <!-- Grid items -->
+  {% for tech in technologies %}
+  {% set col = loop.index0 % style.columns %}
+  {% set row = loop.index0 // style.columns %}
+  {% set x = style.padding + col * (style.item_width + style.gap) %}
+  {% set y = style.padding + 30 + row * (style.item_height + style.gap) %}
+
+  <g transform="translate({{ x }}, {{ y }})">
+    {% set icon_url = get_icon_url(tech.icon) %}
+    <!-- Icon -->
+    {% if icon_url %}
+    <image x="{{ style.item_width // 2 - 16 }}" y="6" width="32" height="32" href="{{ icon_url }}"/>
+    {% else %}
+    <circle cx="{{ style.item_width // 2 }}" cy="22" r="18" fill="{{ tech.color }}"/>
+    <text x="{{ style.item_width // 2 }}" y="27" text-anchor="middle" fill="white" font-size="14" font-weight="bold">{{ tech.name[0] }}</text>
+    {% endif %}
+
+    <!-- Label -->
+    <text x="{{ style.item_width // 2 }}" y="52" text-anchor="middle" class="icon-label">{{ tech.name[:8] }}</text>
+  </g>
+  {% endfor %}
+</svg>
