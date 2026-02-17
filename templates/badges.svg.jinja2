@@ -2,7 +2,9 @@
   <defs>
     <style>
       .title { font: 600 14px system-ui, -apple-system, sans-serif; fill: {{ theme.text_primary }}; }
+      .subtitle { font: 400 11px system-ui, -apple-system, sans-serif; fill: {{ theme.text_secondary }}; }
       .badge-text { font: 500 10px system-ui, -apple-system, sans-serif; fill: white; }
+      .badge-count { font: 600 8px system-ui, -apple-system, sans-serif; fill: white; }
     </style>
   </defs>
 
@@ -10,24 +12,30 @@
 
   <!-- Header -->
   <text x="{{ style.padding }}" y="{{ style.padding + 12 }}" class="title">@{{ username }}</text>
+  <text x="{{ style.padding }}" y="{{ style.padding + 26 }}" class="subtitle">{{ technologies|length }} technologies</text>
 
   <!-- Badges -->
-  {% set badge_y = style.padding + 30 %}
-  {% set current_x = style.padding %}
-  {% set current_y = badge_y %}
-  {% set max_width = width - style.padding * 2 %}
+  {% set badge_y = style.padding + 38 %}
 
   {% for tech in technologies %}
-  {% set badge_width = (tech.name|length * 7) + 20 %}
+  {% set bx = style.padding + (loop.index0 % style.columns) * (style.item_width + style.gap) %}
+  {% set by = badge_y + (loop.index0 // style.columns) * (style.item_height + style.gap) %}
 
-  <g transform="translate({{ style.padding + (loop.index0 % style.columns) * (style.item_width + style.gap) }}, {{ badge_y + (loop.index0 // style.columns) * (style.item_height + style.gap) }})">
+  <g transform="translate({{ bx }}, {{ by }})">
     {% set icon_data = get_icon_data_uri(tech.icon) %}
     <rect width="{{ style.item_width }}" height="{{ style.item_height }}" fill="{{ tech.color }}" rx="4"/>
+    <!-- Category indicator strip -->
+    <rect width="3" height="{{ style.item_height }}" fill="{{ category_colors.get(tech.category, '#8b949e') }}" rx="1.5" opacity="0.6"/>
     {% if icon_data %}
-    <image x="4" y="{{ (style.item_height - 16) // 2 }}" width="16" height="16" href="{{ icon_data }}"/>
-    <text x="{{ 24 + (style.item_width - 24) // 2 }}" y="{{ style.item_height // 2 + 4 }}" text-anchor="middle" class="badge-text">{{ tech.name[:10] }}</text>
+    <image x="6" y="{{ (style.item_height - 16) // 2 }}" width="16" height="16" href="{{ icon_data }}"/>
+    <text x="{{ 26 + (style.item_width - 26) // 2 }}" y="{{ style.item_height // 2 + 4 }}" text-anchor="middle" class="badge-text">{{ tech.name[:10] }}</text>
     {% else %}
     <text x="{{ style.item_width // 2 }}" y="{{ style.item_height // 2 + 4 }}" text-anchor="middle" class="badge-text">{{ tech.name[:10] }}</text>
+    {% endif %}
+    <!-- Count circle -->
+    {% if tech.count > 1 %}
+    <circle cx="{{ style.item_width - 8 }}" cy="8" r="7" fill="{{ theme.background }}" opacity="0.85"/>
+    <text x="{{ style.item_width - 8 }}" y="11" text-anchor="middle" class="badge-count" fill="{{ tech.color }}">{{ tech.count }}</text>
     {% endif %}
   </g>
   {% endfor %}

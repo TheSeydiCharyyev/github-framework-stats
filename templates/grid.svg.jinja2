@@ -2,7 +2,9 @@
   <defs>
     <style>
       .title { font: 600 14px system-ui, -apple-system, sans-serif; fill: {{ theme.text_primary }}; }
+      .subtitle { font: 400 11px system-ui, -apple-system, sans-serif; fill: {{ theme.text_secondary }}; }
       .icon-label { font: 500 9px system-ui, -apple-system, sans-serif; fill: {{ theme.text_primary }}; }
+      .icon-count { font: 600 8px system-ui, -apple-system, sans-serif; }
     </style>
   </defs>
 
@@ -10,26 +12,30 @@
 
   <!-- Header -->
   <text x="{{ style.padding }}" y="{{ style.padding + 12 }}" class="title">@{{ username }}'s Stack</text>
+  <text x="{{ style.padding }}" y="{{ style.padding + 26 }}" class="subtitle">{{ technologies|length }} technologies</text>
 
   <!-- Grid items -->
   {% for tech in technologies %}
   {% set col = loop.index0 % style.columns %}
   {% set row = loop.index0 // style.columns %}
   {% set x = style.padding + col * (style.item_width + style.gap) %}
-  {% set y = style.padding + 30 + row * (style.item_height + style.gap) %}
+  {% set y = style.padding + 36 + row * (style.item_height + style.gap) %}
 
   <g transform="translate({{ x }}, {{ y }})">
     {% set icon_data = get_icon_data_uri(tech.icon) %}
     <!-- Icon -->
     {% if icon_data %}
-    <image x="{{ style.item_width // 2 - 16 }}" y="6" width="32" height="32" href="{{ icon_data }}"/>
+    <image x="{{ style.item_width // 2 - 16 }}" y="2" width="32" height="32" href="{{ icon_data }}"/>
     {% else %}
-    <circle cx="{{ style.item_width // 2 }}" cy="22" r="18" fill="{{ tech.color }}"/>
-    <text x="{{ style.item_width // 2 }}" y="27" text-anchor="middle" fill="white" font-size="14" font-weight="bold">{{ tech.name[0] }}</text>
+    <circle cx="{{ style.item_width // 2 }}" cy="18" r="18" fill="{{ tech.color }}"/>
+    <text x="{{ style.item_width // 2 }}" y="23" text-anchor="middle" fill="white" font-size="14" font-weight="bold">{{ tech.name[0] }}</text>
     {% endif %}
 
     <!-- Label -->
-    <text x="{{ style.item_width // 2 }}" y="52" text-anchor="middle" class="icon-label">{{ tech.name[:8] }}</text>
+    <text x="{{ style.item_width // 2 }}" y="48" text-anchor="middle" class="icon-label">{{ tech.name[:8] }}</text>
+
+    <!-- Count indicator -->
+    <text x="{{ style.item_width // 2 }}" y="58" text-anchor="middle" class="icon-count" fill="{{ tech.color }}">{{ tech.count }}x</text>
   </g>
   {% endfor %}
 </svg>

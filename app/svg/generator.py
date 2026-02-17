@@ -7,6 +7,67 @@ from .styles import Style, STYLES
 from .icons import get_icon_url, get_icon_data_uri
 
 
+CATEGORY_LABELS = {
+    "language": "Language",
+    "framework": "Framework",
+    "runtime": "Runtime",
+    "devops": "DevOps",
+    "database": "Database",
+    "ci": "CI/CD",
+    "iac": "IaC",
+    "hosting": "Hosting",
+    "styling": "Styling",
+    "build": "Build",
+    "testing": "Testing",
+    "state": "State Mgmt",
+    "backend": "Backend",
+    "api": "API",
+    "http": "HTTP",
+    "realtime": "Realtime",
+    "ui": "UI",
+    "graphics": "Graphics",
+    "data": "Data",
+    "ml": "ML",
+    "validation": "Validation",
+    "scraping": "Scraping",
+    "server": "Server",
+    "storage": "Storage",
+    "routing": "Routing",
+    "codegen": "Codegen",
+    "mobile": "Mobile",
+}
+
+CATEGORY_COLORS = {
+    "language": "#f1e05a",
+    "framework": "#61dafb",
+    "runtime": "#bc8cff",
+    "devops": "#f0883e",
+    "database": "#3fb950",
+    "ci": "#539bf5",
+    "iac": "#d2a8ff",
+    "hosting": "#f778ba",
+    "styling": "#e377c2",
+    "build": "#ff7b72",
+    "testing": "#d29922",
+    "state": "#8b949e",
+    "backend": "#da3633",
+    "api": "#56d4dd",
+    "http": "#79c0ff",
+    "realtime": "#7ee787",
+    "ui": "#ffa657",
+    "graphics": "#d2a8ff",
+    "data": "#ff9bce",
+    "ml": "#a371f7",
+    "validation": "#ffd33d",
+    "scraping": "#9ecbff",
+    "server": "#f85149",
+    "storage": "#3fb950",
+    "routing": "#79c0ff",
+    "codegen": "#b392f0",
+    "mobile": "#56d4dd",
+}
+
+
 class SVGGenerator:
     """Generate SVG images from technology data."""
 
@@ -63,6 +124,22 @@ class SVGGenerator:
         if num_items == 0:
             return self._generate_empty(username, theme, style)
 
+        # Calculate max_count and category summary
+        max_count = max((t.count for t in sorted_techs), default=1)
+
+        cat_counts: dict[str, int] = {}
+        for tech in sorted_techs:
+            cat_counts[tech.category] = cat_counts.get(tech.category, 0) + 1
+
+        category_summary = []
+        for cat, cnt in sorted(cat_counts.items(), key=lambda x: x[1], reverse=True):
+            category_summary.append({
+                "key": cat,
+                "label": CATEGORY_LABELS.get(cat, cat.replace("-", " ").title()),
+                "color": CATEGORY_COLORS.get(cat, "#8b949e"),
+                "count": cnt,
+            })
+
         # Calculate adaptive columns
         if columns is not None:
             actual_columns = max(1, min(columns, 10))  # Limit 1-10
@@ -75,11 +152,12 @@ class SVGGenerator:
             + actual_columns * style.item_width
             + (actual_columns - 1) * style.gap
         )
+        header_space = 70 if style.name == "card" else 40
         height = (
             style.padding * 2
             + rows * style.item_height
             + (rows - 1) * style.gap
-            + 40  # Header space
+            + header_space
         )
 
         # Create modified style with actual columns
@@ -95,6 +173,7 @@ class SVGGenerator:
 
         # Load and render template
         template = self.env.get_template(style.template)
+        total_count = sum(t.count for t in sorted_techs)
         return template.render(
             technologies=sorted_techs,
             username=username,
@@ -103,6 +182,11 @@ class SVGGenerator:
             width=width,
             height=height,
             rows=rows,
+            max_count=max_count,
+            total_count=total_count,
+            category_labels=CATEGORY_LABELS,
+            category_colors=CATEGORY_COLORS,
+            category_summary=category_summary,
         )
 
     def _calculate_columns(self, num_items: int, style: Style) -> int:

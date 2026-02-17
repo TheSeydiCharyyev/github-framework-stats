@@ -1,44 +1,81 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="{{ width }}" height="{{ height }}" viewBox="0 0 {{ width }} {{ height }}">
   <defs>
     <style>
-      .title { font: 600 16px system-ui, -apple-system, sans-serif; fill: {{ theme.text_primary }}; }
-      .subtitle { font: 400 12px system-ui, -apple-system, sans-serif; fill: {{ theme.text_secondary }}; }
-      .tech-name { font: 500 11px system-ui, -apple-system, sans-serif; fill: {{ theme.text_primary }}; }
-      .tech-count { font: 400 10px system-ui, -apple-system, sans-serif; fill: {{ theme.text_secondary }}; }
+      .title { font: 700 16px system-ui, -apple-system, sans-serif; fill: {{ theme.text_primary }}; }
+      .subtitle { font: 400 11px system-ui, -apple-system, sans-serif; fill: {{ theme.text_secondary }}; }
+      .chip-text { font: 500 11px system-ui, -apple-system, sans-serif; fill: {{ theme.text_secondary }}; }
+      .tech-name { font: 600 12px system-ui, -apple-system, sans-serif; fill: {{ theme.text_primary }}; }
+      .tech-category { font: 400 10px system-ui, -apple-system, sans-serif; fill: {{ theme.text_secondary }}; }
+      .tech-count { font: 500 10px system-ui, -apple-system, sans-serif; fill: {{ theme.text_secondary }}; }
     </style>
+    <clipPath id="card-clip">
+      <rect width="{{ style.item_width }}" height="{{ style.item_height - 10 }}" rx="8"/>
+    </clipPath>
   </defs>
 
   <rect width="100%" height="100%" fill="{{ theme.background }}" rx="8"/>
 
   <!-- Header -->
-  <text x="{{ style.padding }}" y="{{ style.padding + 16 }}" class="title">@{{ username }}'s Tech Stack</text>
-  <text x="{{ style.padding }}" y="{{ style.padding + 32 }}" class="subtitle">{{ technologies|length }} technologies detected</text>
+  <text x="{{ style.padding }}" y="{{ style.padding + 18 }}" class="title">@{{ username }}'s Tech Stack</text>
+
+  <!-- Separator line -->
+  <line x1="{{ style.padding }}" y1="{{ style.padding + 28 }}" x2="{{ width - style.padding }}" y2="{{ style.padding + 28 }}" stroke="{{ theme.border }}" stroke-width="1"/>
+
+  <!-- Category summary chips (max 5, then +N) -->
+  {% set max_chips = 5 %}
+  {% set ns = namespace(chip_x=0) %}
+  {% for cat in category_summary[:max_chips] %}
+  <circle cx="{{ style.padding + ns.chip_x + 5 }}" cy="{{ style.padding + 44 }}" r="4" fill="{{ cat.color }}"/>
+  <text x="{{ style.padding + ns.chip_x + 13 }}" y="{{ style.padding + 48 }}" class="chip-text">{{ cat.count }} {{ cat.label }}</text>
+  {% set text_width = ((cat.count|string|length + 1 + cat.label|length) * 6.5)|int %}
+  {% set ns.chip_x = ns.chip_x + 13 + text_width + 16 %}
+  {% endfor %}
+  {% if category_summary|length > max_chips %}
+  <text x="{{ style.padding + ns.chip_x + 5 }}" y="{{ style.padding + 48 }}" class="chip-text">+{{ category_summary|length - max_chips }}</text>
+  {% endif %}
 
   <!-- Technology cards -->
+  {% set card_h = style.item_height - 10 %}
   {% for tech in technologies %}
   {% set col = loop.index0 % style.columns %}
   {% set row = loop.index0 // style.columns %}
   {% set x = style.padding + col * (style.item_width + style.gap) %}
-  {% set y = style.padding + 45 + row * (style.item_height + style.gap) %}
+  {% set y = style.padding + 64 + row * (style.item_height + style.gap) %}
 
   <g transform="translate({{ x }}, {{ y }})">
-    <rect width="{{ style.item_width }}" height="{{ style.item_height - 10 }}" fill="{{ theme.card_background }}" rx="6" stroke="{{ theme.border }}" stroke-width="1"/>
+    <!-- Card background with clipped accent bar -->
+    <g clip-path="url(#card-clip)">
+      <rect width="{{ style.item_width }}" height="{{ card_h }}" fill="{{ theme.card_background }}"/>
+      <rect width="{{ style.item_width }}" height="4" fill="{{ tech.color }}"/>
+    </g>
+    <rect width="{{ style.item_width }}" height="{{ card_h }}" fill="none" rx="8" stroke="{{ theme.border }}" stroke-width="1"/>
 
     <!-- Icon -->
     {% set icon_data = get_icon_data_uri(tech.icon) %}
-    <circle cx="{{ style.item_width // 2 }}" cy="35" r="20" fill="{{ tech.color }}20"/>
+    <circle cx="{{ style.item_width // 2 }}" cy="38" r="22" fill="{{ tech.color }}15"/>
     {% if icon_data %}
-    <image x="{{ style.item_width // 2 - 14 }}" y="21" width="28" height="28" href="{{ icon_data }}"/>
+    <image x="{{ style.item_width // 2 - 14 }}" y="24" width="28" height="28" href="{{ icon_data }}"/>
     {% else %}
-    <circle cx="{{ style.item_width // 2 }}" cy="35" r="16" fill="{{ tech.color }}"/>
-    <text x="{{ style.item_width // 2 }}" y="40" text-anchor="middle" fill="white" font-size="12" font-weight="bold">{{ tech.name[0] }}</text>
+    <circle cx="{{ style.item_width // 2 }}" cy="38" r="18" fill="{{ tech.color }}"/>
+    <text x="{{ style.item_width // 2 }}" y="43" text-anchor="middle" fill="white" font-size="14" font-weight="bold">{{ tech.name[0] }}</text>
     {% endif %}
 
     <!-- Name -->
-    <text x="{{ style.item_width // 2 }}" y="72" text-anchor="middle" class="tech-name">{{ tech.name[:12] }}{% if tech.name|length > 12 %}...{% endif %}</text>
+    <text x="{{ style.item_width // 2 }}" y="78" text-anchor="middle" class="tech-name">{{ tech.name[:16] }}{% if tech.name|length > 16 %}..{% endif %}</text>
+
+    <!-- Category label -->
+    <text x="{{ style.item_width // 2 }}" y="93" text-anchor="middle" class="tech-category">{{ category_labels.get(tech.category, tech.category) }}</text>
+
+    <!-- Usage bar -->
+    {% set bar_w = 110 %}
+    {% set bar_x = (style.item_width - bar_w) // 2 %}
+    {% set fill_w = ((bar_w * tech.count / max_count))|int %}
+    {% if fill_w < 4 %}{% set fill_w = 4 %}{% endif %}
+    <rect x="{{ bar_x }}" y="102" width="{{ bar_w }}" height="5" fill="{{ theme.border }}" rx="2.5" opacity="0.5"/>
+    <rect x="{{ bar_x }}" y="102" width="{{ fill_w }}" height="5" fill="{{ tech.color }}" rx="2.5"/>
 
     <!-- Count -->
-    <text x="{{ style.item_width // 2 }}" y="88" text-anchor="middle" class="tech-count">{{ tech.count }} repo{% if tech.count != 1 %}s{% endif %}</text>
+    <text x="{{ style.item_width // 2 }}" y="122" text-anchor="middle" class="tech-count">{{ tech.count }} repo{{ 's' if tech.count != 1 else '' }}</text>
   </g>
   {% endfor %}
 </svg>

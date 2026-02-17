@@ -20,3 +20,4 @@ Thumbs.db
 *.output.svg
 test_*.svg
 demo_*.svg
+.vercel
