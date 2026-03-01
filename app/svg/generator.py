@@ -76,7 +76,7 @@ class SVGGenerator:
             templates_dir = Path(__file__).parent.parent.parent / "templates"
         self.env = Environment(
             loader=FileSystemLoader(str(templates_dir)),
-            autoescape=True,
+            autoescape=False,
         )
         self.env.globals["math"] = math
         self.env.globals["get_icon_url"] = get_icon_url
