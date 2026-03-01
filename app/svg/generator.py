@@ -146,19 +146,28 @@ class SVGGenerator:
         else:
             actual_columns = self._calculate_columns(num_items, style)
 
-        rows = math.ceil(num_items / actual_columns)
-        width = (
-            style.padding * 2
-            + actual_columns * style.item_width
-            + (actual_columns - 1) * style.gap
-        )
-        header_space = 70 if style.name == "card" else 40
-        height = (
-            style.padding * 2
-            + rows * style.item_height
-            + (rows - 1) * style.gap
-            + header_space
-        )
+        if style.name == "pie":
+            # Pie chart: fixed layout with chart on left + legend on right
+            legend_items = min(num_items, 12)
+            legend_height = 56 + legend_items * 24
+            pie_height = 80 * 2 + 60  # radius*2 + padding
+            height = max(legend_height, pie_height) + 60  # +60 for header
+            width = 440
+            rows = 1
+        else:
+            rows = math.ceil(num_items / actual_columns)
+            width = (
+                style.padding * 2
+                + actual_columns * style.item_width
+                + (actual_columns - 1) * style.gap
+            )
+            header_space = 70 if style.name == "card" else 40
+            height = (
+                style.padding * 2
+                + rows * style.item_height
+                + (rows - 1) * style.gap
+                + header_space
+            )
 
         # Create modified style with actual columns
         actual_style = Style(
