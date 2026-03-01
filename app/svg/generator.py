@@ -152,7 +152,7 @@ class SVGGenerator:
             legend_height = 56 + legend_items * 24
             pie_height = 80 * 2 + 60  # radius*2 + padding
             height = max(legend_height, pie_height) + 60  # +60 for header
-            width = 440
+            width = 390
             rows = 1
         else:
             rows = math.ceil(num_items / actual_columns)
