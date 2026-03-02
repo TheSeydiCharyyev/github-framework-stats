@@ -114,6 +114,8 @@ async def root():
     <ul>
         <li><code>theme</code> - light, dark, dracula, nord, monokai (default: light)</li>
         <li><code>style</code> - card, badges, grid, pie (default: card)</li>
+        <li><code>hide_border</code> - true/false, hide outer border (default: false)</li>
+        <li><code>max_items</code> - 1-50, limit displayed technologies</li>
     </ul>
 
     <h2>Example</h2>
@@ -148,6 +150,8 @@ async def get_demo_techstack(
     theme: Optional[str] = Query("light", regex="^(light|dark|dracula|nord|monokai|github-dimmed|solarized-light|solarized-dark|gruvbox-light|gruvbox-dark|one-dark|tokyo-night|catppuccin|synthwave|rose-pine|ayu-dark|cobalt|oceanic|night-owl)$"),
     style: Optional[str] = Query("card", regex="^(card|badges|grid|pie)$"),
     columns: Optional[int] = Query(None, ge=1, le=10, description="Number of columns (1-10, auto if not set)"),
+    hide_border: Optional[bool] = Query(False, description="Hide outer border"),
+    max_items: Optional[int] = Query(None, ge=1, le=50, description="Max technologies to display (1-50)"),
 ):
     """Demo endpoint with mock data for testing."""
     await fetch_icons([t.icon for t in DEMO_TECHNOLOGIES])
@@ -158,6 +162,8 @@ async def get_demo_techstack(
         theme_name=theme,
         style_name=style,
         columns=columns,
+        hide_border=hide_border,
+        max_items=max_items,
     )
 
     return Response(
@@ -175,6 +181,8 @@ async def get_user_techstack(
     theme: Optional[str] = Query("light", regex="^(light|dark|dracula|nord|monokai|github-dimmed|solarized-light|solarized-dark|gruvbox-light|gruvbox-dark|one-dark|tokyo-night|catppuccin|synthwave|rose-pine|ayu-dark|cobalt|oceanic|night-owl)$"),
     style: Optional[str] = Query("card", regex="^(card|badges|grid|pie)$"),
     columns: Optional[int] = Query(None, ge=1, le=10, description="Number of columns (1-10, auto if not set)"),
+    hide_border: Optional[bool] = Query(False, description="Hide outer border"),
+    max_items: Optional[int] = Query(None, ge=1, le=50, description="Max technologies to display (1-50)"),
 ):
     """Generate SVG for user's complete tech stack."""
     technologies = await analyze_user(username)
@@ -186,6 +194,8 @@ async def get_user_techstack(
         theme_name=theme,
         style_name=style,
         columns=columns,
+        hide_border=hide_border,
+        max_items=max_items,
     )
 
     return Response(
@@ -204,6 +214,8 @@ async def get_user_frameworks(
     theme: Optional[str] = Query("light", regex="^(light|dark|dracula|nord|monokai|github-dimmed|solarized-light|solarized-dark|gruvbox-light|gruvbox-dark|one-dark|tokyo-night|catppuccin|synthwave|rose-pine|ayu-dark|cobalt|oceanic|night-owl)$"),
     style: Optional[str] = Query("card", regex="^(card|badges|grid|pie)$"),
     columns: Optional[int] = Query(None, ge=1, le=10, description="Number of columns (1-10, auto if not set)"),
+    hide_border: Optional[bool] = Query(False, description="Hide outer border"),
+    max_items: Optional[int] = Query(None, ge=1, le=50, description="Max technologies to display (1-50)"),
 ):
     """Generate SVG for user's frameworks only."""
     technologies = await analyze_user(username)
@@ -218,6 +230,8 @@ async def get_user_frameworks(
         theme_name=theme,
         style_name=style,
         columns=columns,
+        hide_border=hide_border,
+        max_items=max_items,
     )
 
     return Response(
@@ -236,6 +250,8 @@ async def get_repo_tech(
     theme: Optional[str] = Query("light", regex="^(light|dark|dracula|nord|monokai|github-dimmed|solarized-light|solarized-dark|gruvbox-light|gruvbox-dark|one-dark|tokyo-night|catppuccin|synthwave|rose-pine|ayu-dark|cobalt|oceanic|night-owl)$"),
     style: Optional[str] = Query("card", regex="^(card|badges|grid|pie)$"),
     columns: Optional[int] = Query(None, ge=1, le=10, description="Number of columns (1-10, auto if not set)"),
+    hide_border: Optional[bool] = Query(False, description="Hide outer border"),
+    max_items: Optional[int] = Query(None, ge=1, le=50, description="Max technologies to display (1-50)"),
 ):
     """Generate SVG for a single repository's tech stack."""
     technologies = await analyze_repo(owner, repo, github)
@@ -247,6 +263,8 @@ async def get_repo_tech(
         theme_name=theme,
         style_name=style,
         columns=columns,
+        hide_border=hide_border,
+        max_items=max_items,
     )
 
     return Response(

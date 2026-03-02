@@ -89,6 +89,8 @@ class SVGGenerator:
         theme_name: str = "light",
         style_name: str = "card",
         columns: int = None,
+        hide_border: bool = False,
+        max_items: int = None,
     ) -> str:
         """Generate SVG for given technologies.
 
@@ -98,6 +100,8 @@ class SVGGenerator:
             theme_name: Theme name
             style_name: Style name (card, badges, grid, pie)
             columns: Number of columns (None = auto)
+            hide_border: Hide outer border
+            max_items: Maximum number of items to display (1-50)
         """
         theme = get_theme(theme_name)
         style = STYLES.get(style_name, STYLES["card"])
@@ -118,6 +122,11 @@ class SVGGenerator:
 
         # Sort by count (descending)
         sorted_techs = sorted(tech_map.values(), key=lambda t: t.count, reverse=True)
+
+        # Apply max_items filter
+        if max_items is not None:
+            max_items = max(1, min(max_items, 50))
+            sorted_techs = sorted_techs[:max_items]
 
         # Calculate dimensions
         num_items = len(sorted_techs)
@@ -147,12 +156,10 @@ class SVGGenerator:
             actual_columns = self._calculate_columns(num_items, style)
 
         if style.name == "pie":
-            # Pie chart: fixed layout with chart on left + legend on right
+            # Compact list layout (like github-readme-stats)
             legend_items = min(num_items, 12)
-            legend_height = 56 + legend_items * 24
-            pie_height = 80 * 2 + 60  # radius*2 + padding
-            height = max(legend_height, pie_height) + 60  # +60 for header
-            width = 390
+            height = 60 + legend_items * 25 + 20
+            width = 350
             rows = 1
         else:
             rows = math.ceil(num_items / actual_columns)
@@ -161,7 +168,12 @@ class SVGGenerator:
                 + actual_columns * style.item_width
                 + (actual_columns - 1) * style.gap
             )
-            header_space = 70 if style.name == "card" else 40
+            if style.name == "card":
+                header_space = 70
+            elif style.name == "grid":
+                header_space = 48
+            else:
+                header_space = 40
             height = (
                 style.padding * 2
                 + rows * style.item_height
@@ -196,6 +208,7 @@ class SVGGenerator:
             category_labels=CATEGORY_LABELS,
             category_colors=CATEGORY_COLORS,
             category_summary=category_summary,
+            hide_border=hide_border,
         )
 
     def _calculate_columns(self, num_items: int, style: Style) -> int:

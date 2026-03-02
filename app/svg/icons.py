@@ -146,7 +146,7 @@ DEVICON_MAP = {
 
 # Icons that need "plain" variant instead of "original"
 PLAIN_VARIANTS = {
-    "express", "nextjs", "github", "githubactions", "vercel"
+    "express", "nextjs", "github", "vercel"
 }
 
 DEVICON_CDN = "https://cdn.jsdelivr.net/gh/devicons/devicon/icons"

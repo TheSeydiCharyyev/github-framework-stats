@@ -25,8 +25,8 @@ STYLES = {
     "badges": Style(
         name="badges",
         template="badges.svg.jinja2",
-        columns=6,
-        item_width=80,
+        columns=5,
+        item_width=100,
         item_height=28,
         padding=15,
         gap=8,
@@ -34,9 +34,9 @@ STYLES = {
     "grid": Style(
         name="grid",
         template="grid.svg.jinja2",
-        columns=5,
-        item_width=60,
-        item_height=60,
+        columns=4,
+        item_width=90,
+        item_height=76,
         padding=15,
         gap=10,
     ),

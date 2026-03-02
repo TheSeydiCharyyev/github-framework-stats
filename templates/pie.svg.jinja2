@@ -1,75 +1,36 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="{{ width }}" height="{{ height }}" viewBox="0 0 {{ width }} {{ height }}">
   <defs>
     <style>
-      .title { font: 600 16px system-ui, -apple-system, sans-serif; fill: {{ theme.text_primary }}; }
+      .title { font: 600 14px system-ui, -apple-system, sans-serif; fill: {{ theme.accent }}; }
       .subtitle { font: 400 11px system-ui, -apple-system, sans-serif; fill: {{ theme.text_secondary }}; }
       .legend-text { font: 400 11px system-ui, -apple-system, sans-serif; fill: {{ theme.text_primary }}; }
-      .legend-count { font: 400 10px system-ui, -apple-system, sans-serif; fill: {{ theme.text_secondary }}; }
-      .legend-pct { font: 600 10px system-ui, -apple-system, sans-serif; fill: {{ theme.text_secondary }}; }
-      .center-num { font: 700 18px system-ui, -apple-system, sans-serif; fill: {{ theme.text_primary }}; }
-      .center-label { font: 400 10px system-ui, -apple-system, sans-serif; fill: {{ theme.text_secondary }}; }
+      .legend-pct { font: 600 11px system-ui, -apple-system, sans-serif; fill: {{ theme.text_secondary }}; }
     </style>
   </defs>
 
-  <rect width="100%" height="100%" fill="{{ theme.background }}" rx="8"/>
+  <rect width="100%" height="100%" fill="{{ theme.background }}" rx="6"{% if not hide_border %} stroke="{{ theme.border }}" stroke-width="1"{% endif %}/>
 
   <!-- Header -->
-  <text x="{{ style.padding }}" y="{{ style.padding + 16 }}" class="title">@{{ username }}'s Tech Distribution</text>
-  <text x="{{ style.padding }}" y="{{ style.padding + 32 }}" class="subtitle">{{ technologies|length }} technologies across {{ total_count }} repo usage{{ 's' if total_count != 1 else '' }}</text>
+  <text x="25" y="30" class="title">@{{ username }}'s Tech Distribution</text>
 
-  <!-- Pie chart -->
-  {% set cx = 120 %}
-  {% set cy = height // 2 + 20 %}
-  {% set r = 80 %}
+  <!-- Separator line -->
+  <line x1="25" y1="42" x2="{{ width - 25 }}" y2="42" stroke="{{ theme.border }}" stroke-width="1" opacity="0.5"/>
+
   {% set total = technologies|sum(attribute='count') %}
 
-  {% if total > 0 %}
-  {% set start_angle = 0 %}
-  {% for tech in technologies %}
-  {% set percentage = tech.count / total %}
-  {% set angle = percentage * 360 %}
-  {% set end_angle = start_angle + angle %}
-
-  {% set start_rad = (start_angle - 90) * 3.14159 / 180 %}
-  {% set end_rad = (end_angle - 90) * 3.14159 / 180 %}
-
-  {% set x1 = cx + r * math.cos(start_rad) %}
-  {% set y1 = cy + r * math.sin(start_rad) %}
-  {% set x2 = cx + r * math.cos(end_rad) %}
-  {% set y2 = cy + r * math.sin(end_rad) %}
-
-  {% set large_arc = 1 if angle > 180 else 0 %}
-
-  {% if technologies|length == 1 %}
-  <circle cx="{{ cx }}" cy="{{ cy }}" r="{{ r }}" fill="{{ tech.color }}"/>
-  {% else %}
-  <path d="M {{ cx }} {{ cy }} L {{ x1 }} {{ y1 }} A {{ r }} {{ r }} 0 {{ large_arc }} 1 {{ x2 }} {{ y2 }} Z" fill="{{ tech.color }}"/>
-  {% endif %}
-
-  {% set start_angle = end_angle %}
-  {% endfor %}
-  {% endif %}
-
-  <!-- Center circle for donut effect -->
-  <circle cx="{{ cx }}" cy="{{ cy }}" r="40" fill="{{ theme.background }}"/>
-  <text x="{{ cx }}" y="{{ cy - 2 }}" text-anchor="middle" class="center-num">{{ total }}</text>
-  <text x="{{ cx }}" y="{{ cy + 12 }}" text-anchor="middle" class="center-label">repos</text>
-
-  <!-- Legend -->
-  {% set legend_x = 220 %}
-  {% set legend_y = 56 %}
+  <!-- Legend items -->
   {% for tech in technologies[:12] %}
   {% set pct = (tech.count / total * 100) if total > 0 else 0 %}
-  <g transform="translate({{ legend_x }}, {{ legend_y + loop.index0 * 24 }})">
+  {% set item_y = 60 + loop.index0 * 25 %}
+  <g transform="translate(25, {{ item_y }})">
     {% set icon_data = get_icon_data_uri(tech.icon) %}
     {% if icon_data %}
-    <image x="0" y="0" width="14" height="14" href="{{ icon_data }}"/>
+    <image x="0" y="-10" width="14" height="14" href="{{ icon_data }}"/>
     {% else %}
-    <rect width="12" height="12" fill="{{ tech.color }}" rx="2"/>
+    <circle cx="7" cy="-3" r="5" fill="{{ tech.color }}"/>
     {% endif %}
-    <text x="20" y="11" class="legend-text">{{ tech.name }}</text>
-    <text x="130" y="11" text-anchor="end" class="legend-pct">{{ "%.0f"|format(pct) }}%</text>
-    <text x="150" y="11" text-anchor="end" class="legend-count">{{ tech.count }}</text>
+    <text x="22" y="0" class="legend-text">{{ tech.name }}</text>
+    <text x="{{ width - 50 }}" y="0" text-anchor="end" class="legend-pct">{{ "%.1f"|format(pct) }}%</text>
   </g>
   {% endfor %}
 </svg>
