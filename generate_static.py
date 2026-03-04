@@ -101,7 +101,7 @@ def generate_stats_card(technologies: list[Technology], output_dir: Path, total_
         })
 
     width = 420
-    height = 138 + len(categories) * 40 + 20
+    height = 148 + len(categories) * 44 + 25
 
     template = env.get_template("stats.svg.jinja2")
     svg = template.render(

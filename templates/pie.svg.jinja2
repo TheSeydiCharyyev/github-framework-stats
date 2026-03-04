@@ -1,37 +1,39 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="{{ width }}" height="{{ height }}" viewBox="0 0 {{ width }} {{ height }}">
   <defs>
     <style>
-      .title { font: 600 16px system-ui, -apple-system, sans-serif; fill: {{ theme.text_primary }}; }
-      .lang-name { font: 400 12px system-ui, -apple-system, sans-serif; fill: {{ theme.text_primary }}; }
-      .lang-pct { font: 400 12px system-ui, -apple-system, sans-serif; fill: {{ theme.text_primary }}; }
+      .title { font: 700 18px system-ui, -apple-system, sans-serif; fill: {{ theme.text_primary }}; }
+      .lang-name { font: 600 13px system-ui, -apple-system, sans-serif; fill: {{ theme.text_primary }}; }
+      .lang-pct { font: 400 13px system-ui, -apple-system, sans-serif; fill: {{ theme.text_primary }}; }
     </style>
   </defs>
 
-  <rect width="100%" height="100%" fill="{{ theme.background }}" rx="6"{% if not hide_border %} stroke="{{ theme.border }}" stroke-width="1"{% endif %}/>
+  <rect width="100%" height="100%" fill="{{ theme.background }}" rx="8"{% if not hide_border %} stroke="{{ theme.border }}" stroke-width="1"{% endif %}/>
 
   <!-- Title -->
-  <text x="25" y="38" class="title">Most Used Technologies</text>
+  <text x="30" y="40" class="title">Most Used Technologies</text>
 
   {% set total = technologies|sum(attribute='count') %}
-  {% set bar_width = width - 50 %}
+  {% set bar_width = width - 60 %}
   {% set max_pct = (technologies[0].count / total * 100) if total > 0 and technologies else 0 %}
-  {% set item_spacing = ((height - 60 - 25) / technologies|length) if technologies|length > 0 else 50 %}
+  {% set content_start = 70 %}
+  {% set content_end = height - 30 %}
+  {% set item_spacing = ((content_end - content_start) / (technologies|length - 1)) if technologies|length > 1 else 0 %}
 
   {% for tech in technologies %}
   {% set pct = (tech.count / total * 100) if total > 0 else 0 %}
-  {% set item_y = 60 + loop.index0 * item_spacing %}
+  {% set item_y = content_start + loop.index0 * item_spacing %}
 
   <!-- {{ tech.name }} -->
-  <g transform="translate(25, {{ item_y }})">
+  <g transform="translate(30, {{ item_y }})">
     {% set icon_data = get_icon_data_uri(tech.icon) %}
     {% if icon_data %}
-    <image x="0" y="-12" width="16" height="16" href="{{ icon_data }}"/>
+    <image x="0" y="-14" width="18" height="18" href="{{ icon_data }}"/>
     {% else %}
-    <circle cx="8" cy="-4" r="7" fill="{{ tech.color }}"/>
+    <circle cx="9" cy="-5" r="8" fill="{{ tech.color }}"/>
     {% endif %}
-    <text x="22" y="0" class="lang-name">{{ tech.name }}</text>
+    <text x="26" y="0" class="lang-name">{{ tech.name }}</text>
     <text x="{{ bar_width }}" y="0" text-anchor="end" class="lang-pct">{{ "%.2f"|format(pct) }}%</text>
-    <rect x="0" y="10" width="{{ bar_width }}" height="10" rx="5" fill="{{ theme.border }}" opacity="0.4"/>
+    <rect x="0" y="10" width="{{ bar_width }}" height="10" rx="5" fill="{{ theme.border }}" opacity="0.3"/>
     <rect x="0" y="10" width="{{ (pct / max_pct * bar_width) if max_pct > 0 else 0 }}" height="10" rx="5" fill="{{ tech.color }}"/>
   </g>
   {% endfor %}
