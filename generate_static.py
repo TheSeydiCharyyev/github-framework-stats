@@ -23,8 +23,10 @@ load_dotenv()
 from app.github_client import GitHubClient
 from app.analyzers import ALL_ANALYZERS
 from app.analyzers.base import Technology
-from app.svg.generator import SVGGenerator
+from app.svg.generator import SVGGenerator, CATEGORY_LABELS, CATEGORY_COLORS
 from app.svg.icons import fetch_icons
+from app.svg.themes import get_theme
+from jinja2 import Environment, FileSystemLoader
 
 USERNAME = "TheSeydiCharyyev"
 
@@ -67,6 +69,55 @@ async def analyze_user(username: str, github_client: GitHubClient, max_repos: in
     return all_technologies
 
 
+def generate_stats_card(technologies: list[Technology], output_dir: Path, total_repos: int):
+    """Generate the Tech Stack Stats card."""
+    theme = get_theme("light")
+    templates_dir = Path(__file__).parent / "templates"
+    env = Environment(loader=FileSystemLoader(str(templates_dir)), autoescape=False)
+
+    # Aggregate by name first, then count unique techs
+    tech_map: dict[str, Technology] = {}
+    for t in technologies:
+        if t.name in tech_map:
+            tech_map[t.name].count += t.count
+        else:
+            tech_map[t.name] = Technology(t.name, t.category, t.icon, t.color, t.count)
+
+    total_techs = len(tech_map)
+
+    # Category breakdown
+    cat_counts: dict[str, int] = {}
+    for t in tech_map.values():
+        cat_counts[t.category] = cat_counts.get(t.category, 0) + 1
+
+    categories = []
+    for cat, count in sorted(cat_counts.items(), key=lambda x: x[1], reverse=True):
+        pct = count / total_techs * 100 if total_techs > 0 else 0
+        categories.append({
+            "label": CATEGORY_LABELS.get(cat, cat.title()),
+            "color": CATEGORY_COLORS.get(cat, "#8b949e"),
+            "count": count,
+            "pct": pct,
+        })
+
+    width = 420
+    height = 120 + len(categories) * 36 + 16
+
+    template = env.get_template("stats.svg.jinja2")
+    svg = template.render(
+        theme=theme,
+        width=width,
+        height=height,
+        total_techs=total_techs,
+        total_repos=total_repos,
+        categories=categories,
+    )
+
+    path = output_dir / "techstack_stats.svg"
+    path.write_text(svg, encoding="utf-8")
+    print(f"Generated {path}")
+
+
 async def main():
     output_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(".")
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -79,12 +130,17 @@ async def main():
     svg_generator = SVGGenerator()
 
     try:
+        repos = await github.get_user_repos(USERNAME)
+        repos = [r for r in repos if not r.get("fork")]
         technologies = await analyze_user(USERNAME, github)
         print(f"Detected {len(technologies)} technology entries")
 
         # Fetch icons for all detected technologies
         icon_names = list({t.icon for t in technologies})
         await fetch_icons(icon_names)
+
+        # Generate stats card
+        generate_stats_card(technologies, output_dir, len(repos))
 
         for svg_config in SVGS_TO_GENERATE:
             techs = technologies
