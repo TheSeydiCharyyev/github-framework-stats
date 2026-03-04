@@ -101,7 +101,7 @@ def generate_stats_card(technologies: list[Technology], output_dir: Path, total_
         })
 
     width = 420
-    height = 120 + len(categories) * 36 + 16
+    height = 138 + len(categories) * 40 + 20
 
     template = env.get_template("stats.svg.jinja2")
     svg = template.render(
@@ -116,6 +116,8 @@ def generate_stats_card(technologies: list[Technology], output_dir: Path, total_
     path = output_dir / "techstack_stats.svg"
     path.write_text(svg, encoding="utf-8")
     print(f"Generated {path}")
+
+    return height
 
 
 async def main():
@@ -139,8 +141,8 @@ async def main():
         icon_names = list({t.icon for t in technologies})
         await fetch_icons(icon_names)
 
-        # Generate stats card
-        generate_stats_card(technologies, output_dir, len(repos))
+        # Generate stats card first to get its height
+        stats_height = generate_stats_card(technologies, output_dir, len(repos))
 
         for svg_config in SVGS_TO_GENERATE:
             techs = technologies
@@ -154,6 +156,7 @@ async def main():
                 theme_name=svg_config["theme"],
                 style_name=svg_config["style"],
                 max_items=8 if svg_config["style"] == "pie" else None,
+                forced_height=stats_height if svg_config["style"] == "pie" else None,
             )
             output_path = output_dir / svg_config["filename"]
             output_path.write_text(svg_content, encoding="utf-8")

@@ -91,6 +91,7 @@ class SVGGenerator:
         columns: int = None,
         hide_border: bool = False,
         max_items: int = None,
+        forced_height: int = None,
     ) -> str:
         """Generate SVG for given technologies.
 
@@ -185,6 +186,9 @@ class SVGGenerator:
                 + (rows - 1) * style.gap
                 + header_space
             )
+
+        if forced_height is not None:
+            height = forced_height
 
         # Create modified style with actual columns
         actual_style = Style(
