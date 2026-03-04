@@ -87,11 +87,17 @@ async def main():
         await fetch_icons(icon_names)
 
         for svg_config in SVGS_TO_GENERATE:
+            techs = technologies
+            # For pie chart: exclude languages, show only top 8
+            if svg_config["style"] == "pie":
+                techs = [t for t in technologies if t.category != "language"]
+
             svg_content = svg_generator.generate(
-                technologies=technologies,
+                technologies=techs,
                 username=USERNAME,
                 theme_name=svg_config["theme"],
                 style_name=svg_config["style"],
+                max_items=8 if svg_config["style"] == "pie" else None,
             )
             output_path = output_dir / svg_config["filename"]
             output_path.write_text(svg_content, encoding="utf-8")

@@ -1,36 +1,47 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="{{ width }}" height="{{ height }}" viewBox="0 0 {{ width }} {{ height }}">
   <defs>
     <style>
-      .title { font: 600 14px system-ui, -apple-system, sans-serif; fill: {{ theme.accent }}; }
-      .subtitle { font: 400 11px system-ui, -apple-system, sans-serif; fill: {{ theme.text_secondary }}; }
-      .legend-text { font: 400 11px system-ui, -apple-system, sans-serif; fill: {{ theme.text_primary }}; }
-      .legend-pct { font: 600 11px system-ui, -apple-system, sans-serif; fill: {{ theme.text_secondary }}; }
+      .title { font: 600 14px system-ui, -apple-system, sans-serif; fill: {{ theme.text_primary }}; }
+      .lang-name { font: 400 11px system-ui, -apple-system, sans-serif; fill: {{ theme.text_primary }}; }
+      .lang-pct { font: 400 11px system-ui, -apple-system, sans-serif; fill: {{ theme.text_secondary }}; }
     </style>
   </defs>
 
   <rect width="100%" height="100%" fill="{{ theme.background }}" rx="6"{% if not hide_border %} stroke="{{ theme.border }}" stroke-width="1"{% endif %}/>
 
-  <!-- Header -->
-  <text x="{{ style.padding }}" y="28" class="title">@{{ username }}'s Tech Distribution</text>
-
-  <!-- Separator line -->
-  <line x1="{{ style.padding }}" y1="38" x2="{{ width - style.padding }}" y2="38" stroke="{{ theme.border }}" stroke-width="1" opacity="0.5"/>
+  <!-- Title -->
+  <text x="25" y="35" class="title">Most Used Technologies</text>
 
   {% set total = technologies|sum(attribute='count') %}
+  {% set bar_width = width - 50 %}
+  {% set bar_y = 52 %}
+  {% set bar_height = 8 %}
 
-  <!-- Legend items -->
+  <!-- Stacked progress bar -->
+  <clipPath id="bar-clip">
+    <rect x="25" y="{{ bar_y }}" width="{{ bar_width }}" height="{{ bar_height }}" rx="4"/>
+  </clipPath>
+  <g clip-path="url(#bar-clip)">
+    {% set ns = namespace(offset=0) %}
+    {% for tech in technologies %}
+    {% set seg_width = (tech.count / total * bar_width) if total > 0 else 0 %}
+    <rect x="{{ 25 + ns.offset }}" y="{{ bar_y }}" width="{{ seg_width + 0.5 }}" height="{{ bar_height }}" fill="{{ tech.color }}"/>
+    {% set ns.offset = ns.offset + seg_width %}
+    {% endfor %}
+  </g>
+
+  <!-- Legend (2 columns) -->
+  {% set legend_y = bar_y + bar_height + 24 %}
+  {% set col_width = (width - 50) / 2 %}
   {% for tech in technologies %}
   {% set pct = (tech.count / total * 100) if total > 0 else 0 %}
-  {% set item_y = 55 + loop.index0 * 22 %}
-  <g transform="translate({{ style.padding }}, {{ item_y }})">
-    {% set icon_data = get_icon_data_uri(tech.icon) %}
-    {% if icon_data %}
-    <image x="0" y="-10" width="14" height="14" href="{{ icon_data }}"/>
-    {% else %}
-    <circle cx="7" cy="-3" r="5" fill="{{ tech.color }}"/>
-    {% endif %}
-    <text x="22" y="0" class="legend-text">{{ tech.name }}</text>
-    <text x="{{ width - style.padding }}" y="0" text-anchor="end" class="legend-pct">{{ "%.1f"|format(pct) }}%</text>
+  {% set col = loop.index0 % 2 %}
+  {% set row = loop.index0 // 2 %}
+  {% set x = 25 + col * col_width %}
+  {% set y = legend_y + row * 22 %}
+  <g transform="translate({{ x }}, {{ y }})">
+    <circle cx="5" cy="-4" r="5" fill="{{ tech.color }}"/>
+    <text x="16" y="0" class="lang-name">{{ tech.name }} <tspan class="lang-pct">{{ "%.1f"|format(pct) }}%</tspan></text>
   </g>
   {% endfor %}
 </svg>

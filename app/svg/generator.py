@@ -156,10 +156,11 @@ class SVGGenerator:
             actual_columns = self._calculate_columns(num_items, style)
 
         if style.name == "pie":
-            # Compact list layout — same width as grid
+            # github-readme-stats style: bar + 2-column legend
             grid_style = STYLES["grid"]
-            legend_items = num_items
-            height = 55 + legend_items * 22 + 15
+            legend_rows = math.ceil(num_items / 2)
+            # title(35) + gap(17) + bar(8) + gap(24) + legend + bottom padding
+            height = 35 + 17 + 8 + 24 + legend_rows * 22 + 16
             rows = 1
             width = (
                 grid_style.padding * 2
