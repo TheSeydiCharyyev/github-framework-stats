@@ -10,19 +10,13 @@
 
   <rect width="100%" height="100%" fill="{{ theme.background }}" rx="8"{% if not hide_border %} stroke="{{ theme.border }}" stroke-width="1"{% endif %}/>
 
-  <!-- Header -->
-  <text x="{{ style.padding }}" y="{{ style.padding + 12 }}" class="title">@{{ username }}'s Stack</text>
-  <text x="{{ style.padding }}" y="{{ style.padding + 26 }}" class="subtitle">{{ technologies|length }} technologies</text>
-
-  <!-- Separator line -->
-  <line x1="{{ style.padding }}" y1="{{ style.padding + 33 }}" x2="{{ width - style.padding }}" y2="{{ style.padding + 33 }}" stroke="{{ theme.border }}" stroke-width="1"/>
 
   <!-- Grid items -->
   {% for tech in technologies %}
   {% set col = loop.index0 % style.columns %}
   {% set row = loop.index0 // style.columns %}
   {% set x = style.padding + col * (style.item_width + style.gap) %}
-  {% set y = style.padding + 42 + row * (style.item_height + style.gap) %}
+  {% set y = style.padding + row * (style.item_height + style.gap) %}
 
   <g transform="translate({{ x }}, {{ y }})">
     {% set icon_data = get_icon_data_uri(tech.icon) %}

@@ -156,11 +156,10 @@ class SVGGenerator:
             actual_columns = self._calculate_columns(num_items, style)
 
         if style.name == "pie":
-            # github-readme-stats style: bar + 2-column legend
+            # Vertical list with individual progress bars
             grid_style = STYLES["grid"]
-            legend_rows = math.ceil(num_items / 2)
-            # title(35) + gap(17) + bar(8) + gap(24) + legend + bottom padding
-            height = 35 + 17 + 8 + 24 + legend_rows * 22 + 16
+            # title(35) + gap(20) + items(40px each) + bottom padding
+            height = 35 + 20 + num_items * 40 + 16
             rows = 1
             width = (
                 grid_style.padding * 2
@@ -177,7 +176,7 @@ class SVGGenerator:
             if style.name == "card":
                 header_space = 70
             elif style.name == "grid":
-                header_space = 48
+                header_space = 0
             else:
                 header_space = 40
             height = (
