@@ -3,7 +3,7 @@
     <style>
       .title { font: 600 14px system-ui, -apple-system, sans-serif; fill: {{ theme.text_primary }}; }
       .lang-name { font: 400 11px system-ui, -apple-system, sans-serif; fill: {{ theme.text_primary }}; }
-      .lang-pct { font: 400 11px system-ui, -apple-system, sans-serif; fill: {{ theme.text_secondary }}; }
+      .lang-pct { font: 400 11px system-ui, -apple-system, sans-serif; fill: {{ theme.text_primary }}; }
     </style>
   </defs>
 
@@ -14,34 +14,24 @@
 
   {% set total = technologies|sum(attribute='count') %}
   {% set bar_width = width - 50 %}
-  {% set bar_y = 52 %}
-  {% set bar_height = 8 %}
+  {% set max_pct = (technologies[0].count / total * 100) if total > 0 and technologies else 0 %}
 
-  <!-- Stacked progress bar -->
-  <clipPath id="bar-clip">
-    <rect x="25" y="{{ bar_y }}" width="{{ bar_width }}" height="{{ bar_height }}" rx="4"/>
-  </clipPath>
-  <g clip-path="url(#bar-clip)">
-    {% set ns = namespace(offset=0) %}
-    {% for tech in technologies %}
-    {% set seg_width = (tech.count / total * bar_width) if total > 0 else 0 %}
-    <rect x="{{ 25 + ns.offset }}" y="{{ bar_y }}" width="{{ seg_width + 0.5 }}" height="{{ bar_height }}" fill="{{ tech.color }}"/>
-    {% set ns.offset = ns.offset + seg_width %}
-    {% endfor %}
-  </g>
-
-  <!-- Legend (2 columns) -->
-  {% set legend_y = bar_y + bar_height + 24 %}
-  {% set col_width = (width - 50) / 2 %}
   {% for tech in technologies %}
   {% set pct = (tech.count / total * 100) if total > 0 else 0 %}
-  {% set col = loop.index0 % 2 %}
-  {% set row = loop.index0 // 2 %}
-  {% set x = 25 + col * col_width %}
-  {% set y = legend_y + row * 22 %}
-  <g transform="translate({{ x }}, {{ y }})">
-    <circle cx="5" cy="-4" r="5" fill="{{ tech.color }}"/>
-    <text x="16" y="0" class="lang-name">{{ tech.name }} <tspan class="lang-pct">{{ "%.1f"|format(pct) }}%</tspan></text>
+  {% set item_y = 55 + loop.index0 * 40 %}
+
+  <!-- {{ tech.name }} -->
+  <g transform="translate(25, {{ item_y }})">
+    {% set icon_data = get_icon_data_uri(tech.icon) %}
+    {% if icon_data %}
+    <image x="0" y="-11" width="14" height="14" href="{{ icon_data }}"/>
+    {% else %}
+    <circle cx="7" cy="-4" r="6" fill="{{ tech.color }}"/>
+    {% endif %}
+    <text x="20" y="0" class="lang-name">{{ tech.name }}</text>
+    <text x="{{ bar_width }}" y="0" text-anchor="end" class="lang-pct">{{ "%.2f"|format(pct) }}%</text>
+    <rect x="0" y="8" width="{{ bar_width }}" height="8" rx="4" fill="{{ theme.border }}" opacity="0.4"/>
+    <rect x="0" y="8" width="{{ (pct / max_pct * bar_width) if max_pct > 0 else 0 }}" height="8" rx="4" fill="{{ tech.color }}"/>
   </g>
   {% endfor %}
 </svg>
