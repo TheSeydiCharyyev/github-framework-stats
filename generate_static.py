@@ -70,18 +70,18 @@ async def analyze_user(username: str, github_client: GitHubClient, max_repos: in
 
 
 CATEGORY_GROUPS = [
-    {"label": "Languages", "keys": ["language"], "color": "#f1e05a"},
-    {"label": "Frameworks", "keys": ["framework"], "color": "#61dafb"},
-    {"label": "Backend &amp; Server", "keys": ["backend", "server"], "color": "#da3633"},
-    {"label": "HTTP &amp; API", "keys": ["http", "api", "realtime"], "color": "#56d4dd"},
-    {"label": "Build Tools", "keys": ["build"], "color": "#ff7b72"},
-    {"label": "State Mgmt", "keys": ["state"], "color": "#8b949e"},
-    {"label": "UI &amp; Styling", "keys": ["styling", "ui", "graphics"], "color": "#e377c2"},
-    {"label": "Testing", "keys": ["testing", "validation"], "color": "#d29922"},
-    {"label": "DevOps &amp; CI", "keys": ["devops", "ci", "iac"], "color": "#f0883e"},
-    {"label": "Database &amp; Storage", "keys": ["database", "storage"], "color": "#3fb950"},
-    {"label": "Hosting", "keys": ["hosting"], "color": "#f778ba"},
-    {"label": "ML &amp; Data Science", "keys": ["ml", "data", "scraping"], "color": "#a371f7"},
+    {"label": "Languages", "keys": ["language"], "color": "#f1e05a", "icon_id": "languages"},
+    {"label": "Frameworks", "keys": ["framework"], "color": "#61dafb", "icon_id": "frameworks"},
+    {"label": "Backend &amp; Server", "keys": ["backend", "server"], "color": "#da3633", "icon_id": "backend"},
+    {"label": "HTTP &amp; API", "keys": ["http", "api", "realtime"], "color": "#56d4dd", "icon_id": "http-api"},
+    {"label": "Build Tools", "keys": ["build"], "color": "#ff7b72", "icon_id": "build"},
+    {"label": "State Mgmt", "keys": ["state"], "color": "#8b949e", "icon_id": "state"},
+    {"label": "UI &amp; Styling", "keys": ["styling", "ui", "graphics"], "color": "#e377c2", "icon_id": "ui-styling"},
+    {"label": "Testing", "keys": ["testing", "validation"], "color": "#d29922", "icon_id": "testing"},
+    {"label": "DevOps &amp; CI", "keys": ["devops", "ci", "iac"], "color": "#f0883e", "icon_id": "devops"},
+    {"label": "Database &amp; Storage", "keys": ["database", "storage"], "color": "#3fb950", "icon_id": "database"},
+    {"label": "Hosting", "keys": ["hosting"], "color": "#f778ba", "icon_id": "hosting"},
+    {"label": "ML &amp; Data Science", "keys": ["ml", "data", "scraping"], "color": "#a371f7", "icon_id": "ml"},
 ]
 
 
@@ -116,21 +116,22 @@ def generate_stats_card(technologies: list[Technology], output_dir: Path, total_
                 "label": group["label"],
                 "color": group["color"],
                 "count": count,
+                "icon_id": group["icon_id"],
             })
             used_keys.update(group["keys"])
 
     # Catch any ungrouped categories into "Other"
     other_count = sum(v for k, v in cat_counts.items() if k not in used_keys)
     if other_count > 0:
-        categories.append({"label": "Other", "color": "#8b949e", "count": other_count})
+        categories.append({"label": "Other", "color": "#8b949e", "count": other_count, "icon_id": "other"})
 
     # Sort by count descending
     categories.sort(key=lambda x: x["count"], reverse=True)
 
-    width = 420
-    row_height = 30
+    width = 350
+    row_height = 32
     header_height = 48
-    totals_height = 76
+    totals_height = 80
     padding = 24
     height = padding + header_height + len(categories) * row_height + totals_height + padding
 
