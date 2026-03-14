@@ -2,42 +2,44 @@
   <defs>
     <style>
       .title { font: 700 18px system-ui, -apple-system, sans-serif; fill: {{ theme.text_primary }}; }
-      .stat-label { font: 400 14px system-ui, -apple-system, sans-serif; fill: {{ theme.text_secondary }}; }
-      .stat-value { font: 700 14px system-ui, -apple-system, sans-serif; fill: {{ theme.text_primary }}; }
-      .cat-name { font: 600 13px system-ui, -apple-system, sans-serif; fill: {{ theme.text_primary }}; }
-      .cat-pct { font: 400 13px system-ui, -apple-system, sans-serif; fill: {{ theme.text_secondary }}; }
+      .cat-label { font: 400 13px system-ui, -apple-system, sans-serif; fill: {{ theme.text_secondary }}; }
+      .cat-value { font: 700 13px system-ui, -apple-system, sans-serif; fill: {{ theme.text_primary }}; }
+      .sep-label { font: 600 13px system-ui, -apple-system, sans-serif; fill: {{ theme.text_primary }}; }
+      .sep-value { font: 700 13px system-ui, -apple-system, sans-serif; fill: {{ theme.accent }}; }
     </style>
   </defs>
 
   <rect width="100%" height="100%" fill="{{ theme.background }}" rx="8" stroke="{{ theme.border }}" stroke-width="1"/>
 
   <!-- Title -->
-  <text x="30" y="40" class="title">Tech Stack Stats</text>
+  <text x="{{ padding + 6 }}" y="{{ padding + 22 }}" class="title">Tech Stack Stats</text>
 
-  {% set bar_width = width - 60 %}
+  {% set content_x = padding + 6 %}
+  {% set value_x = width - padding - 6 %}
+  {% set start_y = padding + header_height %}
 
-  <!-- Summary stats -->
-  <g transform="translate(30, 72)">
-    <text x="0" y="0" class="stat-label">Total Technologies</text>
-    <text x="{{ bar_width }}" y="0" text-anchor="end" class="stat-value">{{ total_techs }}</text>
-  </g>
-  <g transform="translate(30, 98)">
-    <text x="0" y="0" class="stat-label">Repos Analyzed</text>
-    <text x="{{ bar_width }}" y="0" text-anchor="end" class="stat-value">{{ total_repos }}</text>
-  </g>
-
-  <!-- Separator -->
-  <line x1="30" y1="118" x2="{{ width - 30 }}" y2="118" stroke="{{ theme.border }}" stroke-width="1" opacity="0.5"/>
-
-  <!-- Category breakdown -->
-  {% set max_cat_pct = categories[0].pct if categories else 0 %}
+  <!-- Category rows -->
   {% for cat in categories %}
-  {% set y = 148 + loop.index0 * 44 %}
-  <g transform="translate(30, {{ y }})">
-    <text x="0" y="0" class="cat-name">{{ cat.label }}</text>
-    <text x="{{ bar_width }}" y="0" text-anchor="end" class="cat-pct">{{ cat.count }} · {{ "%.0f"|format(cat.pct) }}%</text>
-    <rect x="0" y="10" width="{{ bar_width }}" height="10" rx="5" fill="{{ theme.border }}" opacity="0.3"/>
-    <rect x="0" y="10" width="{{ (cat.pct / max_cat_pct * bar_width) if max_cat_pct > 0 else 0 }}" height="10" rx="5" fill="{{ cat.color }}"/>
+  {% set y = start_y + loop.index0 * row_height %}
+  <g transform="translate({{ content_x }}, {{ y }})">
+    <circle cx="6" cy="-4" r="5" fill="{{ cat.color }}"/>
+    <text x="18" y="0" class="cat-label">{{ cat.label }}</text>
+    <text x="{{ value_x - content_x }}" y="0" text-anchor="end" class="cat-value">{{ cat.count }}</text>
   </g>
   {% endfor %}
+
+  <!-- Separator line -->
+  {% set sep_y = start_y + categories|length * row_height + 10 %}
+  <line x1="{{ content_x }}" y1="{{ sep_y }}" x2="{{ value_x }}" y2="{{ sep_y }}" stroke="{{ theme.border }}" stroke-width="1" opacity="0.4"/>
+
+  <!-- Totals -->
+  {% set total_y = sep_y + 28 %}
+  <g transform="translate({{ content_x }}, {{ total_y }})">
+    <text x="0" y="0" class="sep-label">Total Technologies</text>
+    <text x="{{ value_x - content_x }}" y="0" text-anchor="end" class="sep-value">{{ total_techs }}</text>
+  </g>
+  <g transform="translate({{ content_x }}, {{ total_y + 26 }})">
+    <text x="0" y="0" class="sep-label">Repos Analyzed</text>
+    <text x="{{ value_x - content_x }}" y="0" text-anchor="end" class="sep-value">{{ total_repos }}</text>
+  </g>
 </svg>

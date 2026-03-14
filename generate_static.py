@@ -69,6 +69,22 @@ async def analyze_user(username: str, github_client: GitHubClient, max_repos: in
     return all_technologies
 
 
+CATEGORY_GROUPS = [
+    {"label": "Languages", "keys": ["language"], "color": "#f1e05a"},
+    {"label": "Frameworks", "keys": ["framework"], "color": "#61dafb"},
+    {"label": "Backend & Server", "keys": ["backend", "server"], "color": "#da3633"},
+    {"label": "HTTP & API", "keys": ["http", "api", "realtime"], "color": "#56d4dd"},
+    {"label": "Build Tools", "keys": ["build"], "color": "#ff7b72"},
+    {"label": "State Mgmt", "keys": ["state"], "color": "#8b949e"},
+    {"label": "UI & Styling", "keys": ["styling", "ui", "graphics"], "color": "#e377c2"},
+    {"label": "Testing", "keys": ["testing", "validation"], "color": "#d29922"},
+    {"label": "DevOps & CI", "keys": ["devops", "ci", "iac"], "color": "#f0883e"},
+    {"label": "Database & Storage", "keys": ["database", "storage"], "color": "#3fb950"},
+    {"label": "Hosting", "keys": ["hosting"], "color": "#f778ba"},
+    {"label": "ML & Data Science", "keys": ["ml", "data", "scraping"], "color": "#a371f7"},
+]
+
+
 def generate_stats_card(technologies: list[Technology], output_dir: Path, total_repos: int):
     """Generate the Tech Stack Stats card."""
     theme = get_theme("light")
@@ -85,23 +101,38 @@ def generate_stats_card(technologies: list[Technology], output_dir: Path, total_
 
     total_techs = len(tech_map)
 
-    # Category breakdown
+    # Count techs per raw category
     cat_counts: dict[str, int] = {}
     for t in tech_map.values():
         cat_counts[t.category] = cat_counts.get(t.category, 0) + 1
 
+    # Group into clean categories
     categories = []
-    for cat, count in sorted(cat_counts.items(), key=lambda x: x[1], reverse=True):
-        pct = count / total_techs * 100 if total_techs > 0 else 0
-        categories.append({
-            "label": CATEGORY_LABELS.get(cat, cat.title()),
-            "color": CATEGORY_COLORS.get(cat, "#8b949e"),
-            "count": count,
-            "pct": pct,
-        })
+    used_keys = set()
+    for group in CATEGORY_GROUPS:
+        count = sum(cat_counts.get(k, 0) for k in group["keys"])
+        if count > 0:
+            categories.append({
+                "label": group["label"],
+                "color": group["color"],
+                "count": count,
+            })
+            used_keys.update(group["keys"])
+
+    # Catch any ungrouped categories into "Other"
+    other_count = sum(v for k, v in cat_counts.items() if k not in used_keys)
+    if other_count > 0:
+        categories.append({"label": "Other", "color": "#8b949e", "count": other_count})
+
+    # Sort by count descending
+    categories.sort(key=lambda x: x["count"], reverse=True)
 
     width = 420
-    height = 148 + len(categories) * 44 + 25
+    row_height = 30
+    header_height = 48
+    totals_height = 76
+    padding = 24
+    height = padding + header_height + len(categories) * row_height + totals_height + padding
 
     template = env.get_template("stats.svg.jinja2")
     svg = template.render(
@@ -111,6 +142,9 @@ def generate_stats_card(technologies: list[Technology], output_dir: Path, total_
         total_techs=total_techs,
         total_repos=total_repos,
         categories=categories,
+        row_height=row_height,
+        header_height=header_height,
+        padding=padding,
     )
 
     path = output_dir / "techstack_stats.svg"
