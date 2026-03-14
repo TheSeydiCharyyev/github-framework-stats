@@ -72,16 +72,16 @@ async def analyze_user(username: str, github_client: GitHubClient, max_repos: in
 CATEGORY_GROUPS = [
     {"label": "Languages", "keys": ["language"], "color": "#f1e05a"},
     {"label": "Frameworks", "keys": ["framework"], "color": "#61dafb"},
-    {"label": "Backend & Server", "keys": ["backend", "server"], "color": "#da3633"},
-    {"label": "HTTP & API", "keys": ["http", "api", "realtime"], "color": "#56d4dd"},
+    {"label": "Backend &amp; Server", "keys": ["backend", "server"], "color": "#da3633"},
+    {"label": "HTTP &amp; API", "keys": ["http", "api", "realtime"], "color": "#56d4dd"},
     {"label": "Build Tools", "keys": ["build"], "color": "#ff7b72"},
     {"label": "State Mgmt", "keys": ["state"], "color": "#8b949e"},
-    {"label": "UI & Styling", "keys": ["styling", "ui", "graphics"], "color": "#e377c2"},
+    {"label": "UI &amp; Styling", "keys": ["styling", "ui", "graphics"], "color": "#e377c2"},
     {"label": "Testing", "keys": ["testing", "validation"], "color": "#d29922"},
-    {"label": "DevOps & CI", "keys": ["devops", "ci", "iac"], "color": "#f0883e"},
-    {"label": "Database & Storage", "keys": ["database", "storage"], "color": "#3fb950"},
+    {"label": "DevOps &amp; CI", "keys": ["devops", "ci", "iac"], "color": "#f0883e"},
+    {"label": "Database &amp; Storage", "keys": ["database", "storage"], "color": "#3fb950"},
     {"label": "Hosting", "keys": ["hosting"], "color": "#f778ba"},
-    {"label": "ML & Data Science", "keys": ["ml", "data", "scraping"], "color": "#a371f7"},
+    {"label": "ML &amp; Data Science", "keys": ["ml", "data", "scraping"], "color": "#a371f7"},
 ]
 
 
