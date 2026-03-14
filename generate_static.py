@@ -189,7 +189,7 @@ async def main():
                 username=USERNAME,
                 theme_name=svg_config["theme"],
                 style_name=svg_config["style"],
-                max_items=8 if svg_config["style"] == "pie" else None,
+                max_items=11 if svg_config["style"] == "pie" else None,
                 forced_height=stats_height if svg_config["style"] == "pie" else None,
             )
             output_path = output_dir / svg_config["filename"]
